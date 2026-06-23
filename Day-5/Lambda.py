@@ -6,4 +6,6 @@ def sum_ele(a):
     return m
 print(sum_ele(slist))
 
-print(list(map(lambda X : X**X,slist)))
+print(list(map(lambda X : X*X,slist)))
+
+print(list(filter(lambda Val: Val%2!=0,slist)))
