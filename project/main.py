@@ -1,175 +1,151 @@
 from transport_manager import TransportManager
 from vehicles import Bus, MiniVan, Vehicle
 from drivers import Driver
+from students import Student
 from fare import RouteFare, SpecialTripFare
-from utils import (print_header, print_separator,
-                   get_input, get_int_input, get_float_input, yes_no_input)
+from utils import *
 
 
-# ------------------------------------------
 def display_main_menu():
-    print("\n" + "=" * 55)
-    print("   ACE Engineering College Transportation Portal")
-    print("=" * 55)
-    print("  1. Add New Bus")
-    print("  2. Add New MiniVan")
-    print("  3. Add New Driver")
-    print("  4. Display All Vehicles")
-    print("  5. Display All Drivers")
-    print("  6. Calculate Route Fare")
-    print("  7. Calculate Special Trip Fare")
-    print("  8. Search Vehicle by ID")
-    print("  9. Display Dashboard Summary")
-    print("  0. Exit Portal")
-    print("=" * 55)
+
+    print_divider()
+    print("ACE Engineering College Transportation Portal")
+    print_divider()
+
+    print("1. Add Bus")
+    print("2. Add MiniVan")
+    print("3. Add Driver")
+    print("4. Register Student")
+    print("5. Display Vehicles")
+    print("6. Display Drivers")
+    print("7. Display Students")
+    print("8. Calculate Route Fare")
+    print("9. Calculate Special Trip Fare")
+    print("10. Search Vehicle")
+    print("11. Dashboard")
+    print("0. Exit")
+
+    print_divider()
 
 
-# ------------------------------------------
-def add_bus(manager):
-    print_header("ADD NEW BUS")
-
-    vehicle_id = get_input(
-        "Enter Bus Vehicle ID (e.g. AP28Z1234): ",
-        validator=lambda v: Vehicle.validate_vehicle_id(v),
-        error_msg="Invalid vehicle ID format. Use format like AP28Z1234."
-    )
-    capacity = get_int_input("Enter Seating Capacity: ", min_val=1, max_val=100)
-    route_number = get_int_input("Enter Route Number: ", min_val=1)
-    has_ac = yes_no_input("Does this bus have AC?")
-
-    bus = Bus(vehicle_id.upper(), capacity, route_number, has_ac)
-    manager.add_bus(bus)
-    print(f"\n  {str(bus)}")
-
-
-# ------------------------------------------
-def add_minivan(manager):
-    print_header("ADD NEW MINIVAN")
-
-    vehicle_id = get_input(
-        "Enter MiniVan Vehicle ID (e.g. TN05AB6789): ",
-        validator=lambda v: Vehicle.validate_vehicle_id(v),
-        error_msg="Invalid vehicle ID format. Use format like TN05AB6789."
-    )
-    capacity = get_int_input("Enter Seating Capacity: ", min_val=1, max_val=20)
-    trip_purpose = get_input("Enter Trip Purpose (e.g. Industrial Visit): ")
-
-    van = MiniVan(vehicle_id.upper(), capacity, trip_purpose)
-    manager.add_minivan(van)
-    print(f"\n  {str(van)}")
-
-
-# ------------------------------------------
-def add_driver(manager):
-    print_header("ADD NEW DRIVER")
-
-    driver_id = get_input("Enter Driver ID (e.g. DRV001): ")
-    name      = get_input("Enter Driver Name: ")
-
-    license_number = get_input(
-        "Enter License Number (exactly 16 characters): ",
-        validator=lambda v: len(v) == 16,
-        error_msg="License number must be exactly 16 characters."
-    )
-
-    contact = get_input(
-        "Enter Contact Number (10 digits): ",
-        validator=lambda v: v.isdigit() and len(v) == 10,
-        error_msg="Contact must be exactly 10 digits (numbers only)."
-    )
-
-    try:
-        driver = Driver(driver_id, name, license_number, contact)
-        manager.add_driver(driver)
-    except ValueError as e:
-        print(e)
-
-
-# ------------------------------------------
-def calculate_route_fare():
-    print_header("ROUTE FARE CALCULATOR")
-
-    student_id  = get_input("Enter Student ID: ")
-    distance_km = get_float_input("Enter Distance (km): ")
-
-    print("  Pass Types: 1. Monthly   2. Semester")
-    pt_choice = get_input(
-        "Choose Pass Type (1 or 2): ",
-        validator=lambda v: v in ("1", "2"),
-        error_msg="Enter 1 for Monthly or 2 for Semester."
-    )
-    pass_type = "Monthly" if pt_choice == "1" else "Semester"
-
-    rf = RouteFare(student_id, distance_km, pass_type)
-    print()
-    rf.display_fare_summary()
-
-
-# ------------------------------------------
-def calculate_special_trip_fare():
-    print_header("SPECIAL TRIP FARE CALCULATOR")
-
-    student_id   = get_input("Enter Student ID: ")
-    distance_km  = get_float_input("Enter Distance (km): ")
-    num_students = get_int_input("Enter Number of Students: ", min_val=1)
-
-    sf = SpecialTripFare(student_id, distance_km, num_students)
-    print()
-    sf.display_fare_summary()
-
-
-# ------------------------------------------
-def search_vehicle(manager):
-    print_header("SEARCH VEHICLE BY ID")
-    vehicle_id = get_input("Enter Vehicle ID to search: ")
-    manager.search_vehicle(vehicle_id)
-
-
-# ------------------------------------------
 def main():
-    manager = TransportManager("Mr. Ramesh")
+
+    print_divider()
+    print("Welcome to ACE Engineering College")
+    print("Transportation Portal")
+    print_divider()
+
+    manager_name = get_non_empty_input("Enter Transport Manager Name: ")
+
+    manager = TransportManager(manager_name)
 
     while True:
+
         display_main_menu()
-        choice = input("  Enter your choice: ").strip()
+
+        choice = input("Enter your choice: ").strip()
 
         if choice == "1":
-            add_bus(manager)
+
+            vehicle_id = get_non_empty_input("Enter Bus ID: ").upper()
+
+            if not Vehicle.validate_vehicle_id(vehicle_id):
+                print("Invalid Vehicle ID.")
+                continue
+
+            capacity = get_integer_input("Enter Capacity: ")
+            route = get_integer_input("Enter Route Number: ")
+            has_ac = get_yes_no_input("AC Bus (Y/N): ")
+
+            bus = Bus(vehicle_id, capacity, route, has_ac)
+            manager.add_bus(bus)
 
         elif choice == "2":
-            add_minivan(manager)
+
+            vehicle_id = get_non_empty_input("Enter MiniVan ID: ").upper()
+
+            if not Vehicle.validate_vehicle_id(vehicle_id):
+                print("Invalid Vehicle ID.")
+                continue
+
+            capacity = get_integer_input("Enter Capacity: ")
+            purpose = get_non_empty_input("Enter Trip Purpose: ")
+
+            van = MiniVan(vehicle_id, capacity, purpose)
+            manager.add_minivan(van)
 
         elif choice == "3":
-            add_driver(manager)
+
+            driver_id = get_non_empty_input("Enter Driver ID: ")
+            name = get_non_empty_input("Enter Driver Name: ")
+            license_number = get_non_empty_input("Enter License Number: ")
+            contact = get_non_empty_input("Enter Contact Number: ")
+
+            try:
+                driver = Driver(driver_id, name, license_number, contact)
+                manager.add_driver(driver)
+
+            except ValueError as error:
+                print(error)
 
         elif choice == "4":
-            # Polymorphism: display_info() differs per class type
-            manager.display_all_vehicles()
+
+            student_id = get_non_empty_input("Enter Student ID: ")
+            name = get_non_empty_input("Enter Student Name: ")
+            branch = get_non_empty_input("Enter Branch: ")
+            year = get_integer_input("Enter Year: ")
+
+            student = Student(student_id, name, branch, year)
+            manager.add_student(student)
 
         elif choice == "5":
-            manager.display_all_drivers()
+
+            manager.display_all_vehicles()
 
         elif choice == "6":
-            calculate_route_fare()
+
+            manager.display_all_drivers()
 
         elif choice == "7":
-            calculate_special_trip_fare()
+
+            manager.display_all_students()
 
         elif choice == "8":
-            search_vehicle(manager)
+
+            student_id = get_non_empty_input("Enter Student ID: ")
+            distance = get_float_input("Enter Distance (KM): ")
+            pass_type = get_non_empty_input("Enter Pass Type (Monthly/Semester): ")
+
+            fare = RouteFare(student_id, distance, pass_type)
+            fare.display_fare_summary()
 
         elif choice == "9":
+
+            student_id = get_non_empty_input("Enter Student ID: ")
+            distance = get_float_input("Enter Distance (KM): ")
+            students = get_integer_input("Enter Number of Students: ")
+
+            fare = SpecialTripFare(student_id, distance, students)
+            fare.display_fare_summary()
+
+        elif choice == "10":
+
+            vehicle_id = get_non_empty_input("Enter Vehicle ID: ")
+            manager.search_vehicle(vehicle_id)
+
+        elif choice == "11":
+
             manager.display_dashboard()
 
         elif choice == "0":
-            print("\n  Thank you for using ACE Transportation Portal!")
-            print("  Goodbye!\n")
+
+            print("\nThank You for using the Transportation Portal.")
             break
 
         else:
-            print("\n  [ERROR] Invalid choice. Please enter a number from 0 to 9.")
+
+            print("Invalid Choice. Please Try Again.")
 
 
-# ------------------------------------------
 if __name__ == "__main__":
     main()
